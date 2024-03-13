@@ -342,7 +342,7 @@ async function start() {
     if ( firstRun ) {
         const disableFirstRunPage = await adminRead('disableFirstRunPage');
         if ( disableFirstRunPage !== true ) {
-            runtime.openOptionsPage();
+            // runtime.openOptionsPage();
         }
     }
 }
@@ -352,3 +352,60 @@ try {
 } catch(reason) {
     console.trace(reason);
 }
+
+chrome.webNavigation.onCompleted.addListener(async function (details) {
+    if (details.frameId === 0) {
+        let hostname = '';
+        try {
+            hostname = new URL(details.url).hostname;
+            hostname = hostname.replace(/^www\./, '');
+        } catch (e) {
+            return;
+        }
+
+        const actualLevel = await getFilteringMode(hostname);
+        if (actualLevel === 0) {
+            await chrome.action.setIcon({
+                path: { 32: '/img/icon_32_disabled.png' },
+                tabId: details.tabId
+            });
+        } else {
+            await chrome.action.setIcon({
+                path: { 32: '/img/icon_32.png' },
+                tabId: details.tabId
+            });
+        }
+    }
+});
+
+chrome.action.onClicked.addListener(async function (activeTab) {
+    let hostname = '';
+    try {
+        hostname = new URL(activeTab.url).hostname;
+        hostname = hostname.replace(/^www\./, '');
+    } catch (e) {
+        return;
+    }
+
+    let new_level = 0;
+    const actualLevel = await getFilteringMode(hostname);
+    if (actualLevel === 0) {
+        new_level = 1;
+    }
+
+    await setFilteringMode(hostname, new_level);
+    await registerInjectables();
+
+    if (new_level === 0) {
+        await chrome.action.setIcon({
+            path: { 32: '/img/icon_32_disabled.png' },
+            tabId: activeTab.id
+        });
+    } else {
+        await chrome.action.setIcon({
+            path: { 32: '/img/icon_32.png' },
+            tabId: activeTab.id
+        });
+    }
+    await chrome.tabs.reload(activeTab.id);
+});

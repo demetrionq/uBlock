@@ -78,11 +78,8 @@ cp "$UBO_DIR"/src/css/fa-icons.css "$DES"/css/
 cp "$UBO_DIR"/src/js/dom.js "$DES"/js/
 cp "$UBO_DIR"/src/js/fa-icons.js "$DES"/js/
 cp "$UBO_DIR"/src/js/i18n.js "$DES"/js/
-cp "$UBO_DIR"/src/lib/punycode.js "$DES"/js/
 
 cp -R "$UBO_DIR/src/img/flags-of-the-world" "$DES"/img
-
-cp LICENSE.txt "$DES"/
 
 echo "*** uBOLite.mv3: Copying mv3-specific files"
 if [ "$PLATFORM" = "firefox" ]; then
@@ -94,7 +91,12 @@ cp platform/mv3/extension/css/* "$DES"/css/
 cp -R platform/mv3/extension/js/* "$DES"/js/
 cp platform/mv3/extension/img/* "$DES"/img/
 cp -R platform/mv3/extension/_locales "$DES"/
-cp platform/mv3/README.md "$DES/"
+
+rm -f "$DES"/dashboard.html
+rm -f "$DES"/js/dashboard.js
+rm -f "$DES"/js/popup.js
+rm -f "$DES"/js/settings.js
+rm -f "$DES"/popup.html
 
 if [ "$QUICK" != "yes" ]; then
     echo "*** uBOLite.mv3: Generating rulesets"
